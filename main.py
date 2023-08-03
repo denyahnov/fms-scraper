@@ -29,7 +29,7 @@ def GetRankings() -> dict:
 # FILTERED GET REQUESTS
 
 def GetTeamSchedule(team_id: int, schedule_type:str = "qual") -> dict:
-	return [match for match in GetSchedule()["Schedule"] if team_id in [team["teamNumber"] for team in match["teams"]]]
+	return {"Schedule": [match for match in GetSchedule()["Schedule"] if team_id in [team["teamNumber"] for team in match["teams"]]]}
 
 def GetMatch(match_id: int, match_type:str = "qual") -> dict:
 	return [match for match in GetAllMatches()["MatchScores"] if match["matchNumber"] == match_id][0]

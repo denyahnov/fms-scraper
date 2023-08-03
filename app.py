@@ -1,16 +1,38 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 from main import *
 
+import pandas as pd
+
 app = Flask(__name__, template_folder='templateFiles', static_folder='staticFiles')
 
-@app.route('/')
+@app.route('/',methods=['GET'])
 def index():
 	return render_template("index.html")
 
-@app.route('/leaderboard')
+@app.route('/leaderboard',methods=['GET'])
 def leaderboard():
-	return "\n".join([f'{team["rank"]}. {team["teamNumber"]}' for team in GetRankings()["Rankings"]])
+	df = pd.DataFrame(data=GetRankings()["Rankings"])
+
+	return df.to_html()
+
+@app.route('/schedule',methods=['GET'])
+def schedule():
+	try:
+		data = GetTeamSchedule(int(request.args.get('team')))
+	except:
+		data = GetSchedule()
+
+	df = pd.DataFrame(data={values["description"]: {team["station"] : team["teamNumber"] for team in values["teams"]}  for values in data["Schedule"]}).transpose()
+
+	return "<link rel='stylesheet' href='/staticFiles/main.css' />" + df.to_html(classes="customTable")
+
+@app.route('/results',methods=['GET'])
+def results():
+	try:
+		return GetMatch(int(request.args.get('match')))
+	except:
+		return GetAllMatches()
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0',port=8080)
