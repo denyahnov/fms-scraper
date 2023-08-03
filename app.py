@@ -12,9 +12,15 @@ def index():
 
 @app.route('/leaderboard',methods=['GET'])
 def leaderboard():
-	df = pd.DataFrame(data=GetRankings()["Rankings"])
+	df = pd.DataFrame(data={
+		values["rank"]: {
+			"Team":values["teamNumber"],
+			"AverageRP":values["sortOrder1"],
+			"Record":"%s - %u - %s" % (values["wins"], values["losses"], values["ties"]),
+			"Matches": values["matchesPlayed"],
+	} for values in GetRankings()["Rankings"]}).transpose()
 
-	return df.to_html()
+	return "<link rel='stylesheet' href='/staticFiles/main.css' />" + df.to_html(classes="customTable")
 
 @app.route('/schedule',methods=['GET'])
 def schedule():
